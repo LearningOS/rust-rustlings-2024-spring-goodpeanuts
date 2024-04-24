@@ -2,7 +2,7 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -29,13 +29,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: std::cmp::PartialOrd + Clone> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: std::cmp::PartialOrd + Clone> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -71,12 +71,60 @@ impl<T> LinkedList<T> {
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut merged_list: LinkedList<T> = Self::new();
+        let mut ptr_a = list_a.start;
+        let mut ptr_b = list_b.start;
+        while ptr_a != None && ptr_b != None {
+            let va = match ptr_a {
+                None => break,
+                Some(p) => Some(unsafe { (*p.as_ptr()).val.clone()}),
+            };
+
+            let vb = match ptr_b {
+                None => break,
+                Some(p) => Some(unsafe { (*p.as_ptr()).val.clone()})
+            }; 
+
+            if va <= vb {
+                merged_list.add(va.unwrap());
+                
+                if let Some(p) = ptr_a {
+                    ptr_a = unsafe { (*p.as_ptr()).next };
+                } 
+            } else {
+                merged_list.add(vb.unwrap());
+                if let Some(p) = ptr_b {
+                    ptr_b = unsafe { (*p.as_ptr()).next };
+                } 
+            }
         }
+
+        while ptr_a !=  None{
+            let va = match ptr_a {
+                None => break,
+                Some(p) => Some(unsafe { (*p.as_ptr()).val.clone()}),
+            };
+
+            merged_list.add(va.unwrap());
+            
+            if let Some(p) = ptr_a {
+                ptr_a = unsafe { (*p.as_ptr()).next };
+            } 
+        }
+
+        while ptr_b != None {
+            let vb = match ptr_b {
+                None => break,
+                Some(p) => Some(unsafe { (*p.as_ptr()).val.clone()})
+            }; 
+
+            merged_list.add(vb.unwrap());
+            if let Some(p) = ptr_b {
+                ptr_b = unsafe { (*p.as_ptr()).next };
+            } 
+        }
+
+        merged_list
 	}
 }
 
